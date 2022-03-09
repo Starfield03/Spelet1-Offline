@@ -30,6 +30,8 @@ public class Phases {
         int roundCounter = 1; //Roundcounter
         int turnCounter = 1; //Turncounter
         
+        Positions.startPositions(sideLength, numberOfPlayers);
+        
         gamePhase(gameboard, numberOfPlayers, players, sideLength);
     }
     
@@ -37,10 +39,10 @@ public class Phases {
     
     public static void gamePhase(SimpleWindow gameboard, int numberOfPlayers, int players[], int sideLength){
         
-        int nextCoordinates[] = InformationGathering.getCoordinates(gameboard, sideLength);
+        int nextCoordinates[] = InformationGathering.getCoordinates(gameboard, sideLength); //Next move
         
-        int nextX = nextCoordinates[0];
-        int nextY = nextCoordinates[1];
+        int nextX = nextCoordinates[0]; //Next move X
+        int nextY = nextCoordinates[1]; //Next move Y
         
         //Drawing.drawRoundNumber(gameboard, sideLength, 1);
         
