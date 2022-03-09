@@ -24,7 +24,7 @@ public class InformationGathering {
         
         int sideLength = 0; //Puts sideLength = 0 to initiate the while loop
         
-        while(sideLength < 2 || sideLength % 2 == 1 || sideLength > 4){ //While loop that forces the side length to be an even number between 6 and 12
+        while(sideLength < 6 || sideLength % 2 == 1 || sideLength > 12){ //While loop that forces the side length to be an even number between 6 and 12
             System.out.println("Side length of gameboard, even numbers between 6 and 12:");
             
             sideLength = sc.nextInt(); //Side length
@@ -33,5 +33,20 @@ public class InformationGathering {
         }
         
         return sideLength; //Sends back the side length
+    }
+    
+    
+    
+    public static int[] getCoordinates(SimpleWindow gameboard, int sideLength){ //Gathers coordinates after mouseclick
+        int nextCoordinates[] = {sideLength, sideLength}; //Creates array with coordinates, X and Y
+        
+        while(nextCoordinates[0] >= sideLength || nextCoordinates[1] >= sideLength){ //While coordinates are out of bounds new coordinates must be chosen
+            gameboard.waitForMouseClick(); //Waits for mouseclick
+            
+            nextCoordinates[0] = (int) Math.floor(gameboard.getMouseX() / 50); //Coordinates X
+            nextCoordinates[1] = (int) Math.floor(gameboard.getMouseY() / 50); //Coordinates Y
+        }
+        
+        return nextCoordinates; //Returns coordinates
     }
 }
