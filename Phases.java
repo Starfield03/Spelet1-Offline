@@ -59,12 +59,7 @@ public class Phases {
             }
         }
         
-        if(counter == numberOfPlayers - 1){ //If only one player lives
-            
-            endPhase(players, numberOfPlayers);
-        }
-        
-        else if(player == 0){ //If player is dead, skip to next person
+        if(player == 0){ //If player is dead, skip to next person
             
             if((turnCounter + numberOfPlayers - 1) % numberOfPlayers + 1 == numberOfPlayers){ //If it is the last players turn
                 
@@ -74,6 +69,21 @@ public class Phases {
             turnCounter++;
             
             gamePhase(gameboard, numberOfPlayers, players, sideLength, roundCounter, turnCounter, takenPositions, activePositions); //Repeats game phase process
+        }
+        
+        else if(counter == numberOfPlayers - 1){ //If only one player lives
+            
+            boolean canPlayerMove = Positions.canPlayerMove(takenPositions, sideLength, activePositions[player * 2 - 2], activePositions[player * 2 - 1]);
+            
+            if(canPlayerMove == true){ //If the last player alive can move next round, that player wins
+                
+                endPhase(players, numberOfPlayers, false);
+            }
+            
+            else{ //If the last player alive can't move next round, the game becomes a tie
+                
+                endPhase(players, numberOfPlayers, true);
+            }
         }
         
         else{
@@ -134,40 +144,48 @@ public class Phases {
     
     
     
-    public static void endPhase(int players[], int numberOfPlayers){
+    public static void endPhase(int players[], int numberOfPlayers, boolean tie){
         
-        int winningPlayer = 0;
-        
-        for(int i = 0 ; i < numberOfPlayers ; i++){
+        if(tie == true){ //If game ends in a tie
             
-            if(players[i] != 0){
+            System.out.println("Game ended in a tie.");
+        }
+        
+        else{ //If game doesn't end in a tie
+            
+            int winningPlayer = 0;
+        
+            for(int i = 0 ; i < numberOfPlayers ; i++){
+            
+                if(players[i] != 0){
                 
-                winningPlayer = players[i];
+                    winningPlayer = players[i];
+                }
             }
-        }
         
-        String colour;
+            String colour;
         
-        if(winningPlayer == 1){
+            if(winningPlayer == 1){ //If winning player is 1
             
-            colour = "(Red)";
-        }
+                colour = "(Red)";
+            }
         
-        else if(winningPlayer == 2){
+            else if(winningPlayer == 2){ //If winning player is 2
             
-            colour = "(Blue)";
-        }
+                colour = "(Blue)";
+            }
         
-        else if(winningPlayer == 3){
+            else if(winningPlayer == 3){ //If winning player is 3
             
-            colour = "(Green)";
-        }
+                colour = "(Green)";
+            }
         
-        else{
+            else{ //If winning player is 4
             
-            colour = "(Yellow)";
-        }
+                colour = "(Yellow)";
+            }
         
-        System.out.println("Player " + winningPlayer + " " + colour + " won.");
+            System.out.println("Player " + winningPlayer + " " + colour + " won.");
+        }
     }
 }

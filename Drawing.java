@@ -61,7 +61,7 @@ public class Drawing {
         
         else if(player == 2){ //Player 2
             
-            Color player2 = new Color(0, 0, 180); //Custom color player 2
+            Color player2 = new Color(0, 0, 170); //Custom color player 2
             gameboard.setLineColor(player2); //Sets color
         }
         
