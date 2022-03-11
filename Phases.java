@@ -1,3 +1,6 @@
+
+import java.awt.Color;
+
 public class Phases {
 
     public static void main(String[] args) {
@@ -77,12 +80,12 @@ public class Phases {
             
             if(canPlayerMove == true){ //If the last player alive can move next round, that player wins
                 
-                endPhase(players, numberOfPlayers, false);
+                endPhase(gameboard, sideLength, players, numberOfPlayers, false);
             }
             
             else{ //If the last player alive can't move next round, the game becomes a tie
                 
-                endPhase(players, numberOfPlayers, true);
+                endPhase(gameboard, sideLength, players, numberOfPlayers, true);
             }
         }
         
@@ -144,11 +147,17 @@ public class Phases {
     
     
     
-    public static void endPhase(int players[], int numberOfPlayers, boolean tie){
+    public static void endPhase(SimpleWindow gameboard, int sideLength, int players[], int numberOfPlayers, boolean tie){
+        
+        gameboard.setLineColor(Color.black);
         
         if(tie == true){ //If game ends in a tie
             
-            System.out.println("Game ended in a tie.");
+            gameboard.moveTo(sideLength * 50 + 10, 250);
+            gameboard.writeText("Game ended");
+            
+            gameboard.moveTo(sideLength * 50 + 10, 262);
+            gameboard.writeText("in a tie.");
         }
         
         else{ //If game doesn't end in a tie
@@ -184,8 +193,12 @@ public class Phases {
             
                 colour = "(Yellow)";
             }
-        
-            System.out.println("Player " + winningPlayer + " " + colour + " won.");
+            
+            gameboard.moveTo(sideLength * 50 + 10, 250);
+            gameboard.writeText("Player " + winningPlayer);
+            
+            gameboard.moveTo(sideLength * 50 + 10, 262);
+            gameboard.writeText(colour + " won.");
         }
     }
 }
