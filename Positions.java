@@ -87,17 +87,6 @@ public class Positions {
     
     public static int legalityOfMove(boolean takenPositions[], int sideLength, int activePositionX, int activePositionY, int nextPositionX, int nextPositionY){
         
-        boolean positions[] = new boolean[8];
-        
-        positions[0] = takenPositions[(sideLength + 2) * (activePositionY) + activePositionX]; //Above left
-        positions[1] = takenPositions[(sideLength + 2) * (activePositionY) + activePositionX + 1]; //Above
-        positions[2] = takenPositions[(sideLength + 2) * (activePositionY) + activePositionX + 2]; //Above right
-        positions[3] = takenPositions[(sideLength + 2) * (activePositionY + 1) + activePositionX + 2]; //Right
-        positions[4] = takenPositions[(sideLength + 2) * (activePositionY + 2) + activePositionX + 2]; //Below right
-        positions[5] = takenPositions[(sideLength + 2) * (activePositionY + 2) + activePositionX + 1]; //Below 
-        positions[6] = takenPositions[(sideLength + 2) * (activePositionY + 2) + activePositionX]; //Below left
-        positions[7] = takenPositions[(sideLength + 2) * (activePositionY + 1) + activePositionX]; //Left
-        
         if(nextPositionX == activePositionX && nextPositionY == activePositionY){ //Player cant step on the same square that they are standing on
             
             return 1;
