@@ -81,13 +81,9 @@ public class Phases {
             
             if(player == numberOfPlayers){
                 
-                System.out.println("1");
-                
                 int winner = 0;
                 
                 for(int i = 0 ; i < numberOfPlayers ; i++){
-                    
-                    System.out.println(deadOrAlive[i]);
                     
                     if(deadOrAlive[i] == true){
                         
@@ -97,23 +93,17 @@ public class Phases {
             
                 if(winner > 0){ //If the last player alive can move next round, that player wins
                     
-                    System.out.println("1.1");
-                    
                     endPhase(gameboard, sideLength, winner, numberOfPlayers, false);
                 }
             
                 else{ //If the last player alive can't move next round, the game becomes a tie
-                    
-                    System.out.println("1.2");
                     
                     endPhase(gameboard, sideLength, winner, numberOfPlayers, true);
                 }
             }
             
             else{
-                
-                System.out.println("2");
-                
+
                 turnCounter++;
                 
                 gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, roundCounter, turnCounter, takenPositions, activePositions);
@@ -121,8 +111,6 @@ public class Phases {
         }
         
         else if(playerStatus == false){ //If player is dead, skip to next person
-            
-            System.out.println("3");
             
             if(player == numberOfPlayers){ //If it is the last players turn
                 
