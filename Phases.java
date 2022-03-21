@@ -97,13 +97,13 @@ public class Phases {
                 }
             
                 else{ //If the last player alive can't move next round, the game becomes a tie
-                    
+
                     endPhase(gameboard, sideLength, winner, numberOfPlayers, true);
                 }
             }
             
             else{
-
+                
                 turnCounter++;
                 
                 gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, roundCounter, turnCounter, takenPositions, activePositions);

@@ -11,9 +11,24 @@ public class InformationGathering {
         
         while(numberOfPlayers < 2 || numberOfPlayers > 4){ //While loop that forces the number of players to be between 2 and 4
             
-            System.out.println("Number of players, between 2 and 4:");
-            
-            numberOfPlayers = sc.nextInt(); //Number of players
+            while(true){
+                
+                System.out.println("Number of players, between 2 and 4:");
+                
+                try{
+                    
+                    numberOfPlayers = sc.nextInt(); //Number of players
+                    
+                    break;
+                }
+                
+                catch(Exception e){
+                    
+                    System.out.println(" ");
+                    
+                    sc.next();
+                }
+            }
             
             System.out.println(" ");
         }
@@ -29,9 +44,24 @@ public class InformationGathering {
         
         while(sideLength < 6 || sideLength % 2 == 1 || sideLength > 12){ //While loop that forces the side length to be an even number between 6 and 12
             
-            System.out.println("Side length of gameboard, even numbers between 6 and 12:");
-            
-            sideLength = sc.nextInt(); //Side length
+            while(true){
+                
+                System.out.println("Side length of gameboard, even numbers between 6 and 12:");
+                
+                try{
+                    
+                    sideLength = sc.nextInt(); //Side length
+                    
+                    break;
+                }
+                
+                catch(Exception e){
+                    
+                    System.out.println(" ");
+                    
+                    sc.next();
+                }
+            }
             
             System.out.println(" ");
         }
