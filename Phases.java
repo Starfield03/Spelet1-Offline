@@ -1,4 +1,3 @@
-
 import java.awt.Color;
 
 public class Phases {
@@ -8,68 +7,83 @@ public class Phases {
         informationPhase();
     }
     
-    public static void informationPhase(){ //Gathers information nad creates the gameboard
+    
+    
+    public static void informationPhase(){
         
-        int numberOfPlayers = InformationGathering.numberOfPlayers(); //Number of players
+        int numberOfPlayers = InformationGathering.numberOfPlayers();
         
-        int players[] = new int[numberOfPlayers]; //Array with number of players
+        int sideLength = InformationGathering.sideLength();
         
-        for(int i = 0 ; i < numberOfPlayers ; i++){ //Sets array numbers to player numbers
+        int numberOfWeapons = InformationGathering.numberOfWeapons();
+                    
+        int weapons[][] = InformationGathering.chooseWeapons(numberOfPlayers, numberOfWeapons);
+        
+        preGamePhase(numberOfPlayers, sideLength, numberOfWeapons, weapons);
+    }
+    
+    
+    
+    public static void preGamePhase(int numberOfPlayers, int sideLength, int numberOfWeapons, int weapons[][]){
+        
+        boolean positions[][] = Positions.playerStartPositions(Positions.boundaryPositions(sideLength), sideLength, numberOfPlayers);
+        
+        int activePositions[] = Positions.activeStartPositions(numberOfPlayers, sideLength);
+        
+        int players[] = new int[numberOfPlayers];
+        
+        for(int i = 0 ; i < numberOfPlayers ; i++){
             
             players[i] = i + 1;
         }
         
-        int sideLength = InformationGathering.sideLength(); //Side length of gameboard
+        SimpleWindow gameboard = new SimpleWindow(sideLength * 50 + 350, sideLength * 50 + 1, "Gameboard");
         
-        preGamePhase(numberOfPlayers, players, sideLength); //Starts the pre game phase
-    }
-    
-    
-    
-    public static void preGamePhase(int numberOfPlayers, int players[], int sideLength){ //Sets up everything
+        Drawing.drawGrid(gameboard, sideLength);
+        Drawing.drawWeaponIcons(gameboard, sideLength, numberOfPlayers);
+        Drawing.drawRound(gameboard, sideLength);
+        Drawing.drawTurn(gameboard, sideLength);
+        Drawing.drawWeaponMarkOutline(gameboard, sideLength);
+        //Draws the static markings on the gameboard
         
-        SimpleWindow gameboard = new SimpleWindow(sideLength * 50 + 101, sideLength * 50 + 1, "gameboard"); //Creates gameboard
-        
-        Drawing.drawGrid(gameboard, sideLength); //Draws grid
-        Drawing.drawRound(gameboard, sideLength); //Draws "Round:"
-        Drawing.drawTurn(gameboard, sideLength); //Draws "Turn:"
-        
-        boolean takenPositions[] = Positions.startPositions(sideLength, numberOfPlayers); //Creates startpositions and outer walls
-        
-        int activePositions[] = Positions.activeStartPositions(numberOfPlayers, sideLength); //Active positions
-        
-        for(int i = 1 ; i <= numberOfPlayers ; i++){
+        for(int i = 0 ; i < numberOfPlayers ; i++){
             
-            Drawing.drawNewSquares(gameboard, i, activePositions[i * 2 - 2], activePositions[i * 2 - 1]); //Paints first active positions
+            Drawing.drawNewSquares(gameboard, (i + 1), activePositions[(i + 1) * 2 - 2], activePositions[(i + 1) * 2 - 1]);
         }
         
         boolean deadOrAlive[] = new boolean[numberOfPlayers];
+        //The array that keeps track of who is dead and alive, "true" = alive, "false" = dead
         
         for(int i = 0 ; i < numberOfPlayers ; i++){
             
             deadOrAlive[i] = true;
+            //Set all players to alive
         }
         
-        gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, 1, 1, takenPositions, activePositions); //Starts the game phase
+        int bombs[][] = new int[sideLength][sideLength];
+        //Bombs location array
+        
+        gamePhase(gameboard, sideLength, numberOfPlayers, deadOrAlive, 1, 1, weapons, positions, players, activePositions, bombs);
     }
     
     
     
-    public static void gamePhase(SimpleWindow gameboard, int numberOfPlayers, int players[], boolean deadOrAlive[], int sideLength, int roundCounter, int turnCounter, boolean takenPositions[], int activePositions[]){
+    public static void gamePhase(SimpleWindow gameboard, int sideLength, int numberOfPlayers, boolean deadOrAlive[], int turnCounter, int roundCounter, int weapons[][], boolean positions[][], int players[], int activePositions[], int bombs[][]){
         
-        int player = players[(turnCounter + numberOfPlayers - 1) % numberOfPlayers]; //Which players turn it is
-        boolean playerStatus = deadOrAlive[player - 1];
+        int player = players[(turnCounter + numberOfPlayers - 1) % numberOfPlayers];
         
-        boolean canPlayerMove = Positions.canPlayerMove(takenPositions, sideLength, activePositions[player * 2 - 2], activePositions[player * 2 - 1]);
+        boolean canPlayerMove = Positions.canPlayerMove(positions, sideLength, activePositions[player * 2 - 2], activePositions[player * 2 - 1], weapons[player - 1][1], weapons[player - 1][3]);
         
         if(canPlayerMove == false){
                 
-            deadOrAlive[player - 1] = false; //Player dies
+            deadOrAlive[player - 1] = false;
+            //Player dies
         }
         
         int counter = 0;
         
         for(int i = 0 ; i < numberOfPlayers; i++){
+            //Counts how many players are dead
             
             if(deadOrAlive[i] == false){
                 
@@ -77,9 +91,11 @@ public class Phases {
             }
         }
         
-        if(counter >= numberOfPlayers - 1){ //If only one player lives
+        if(counter >= numberOfPlayers - 1){ 
+            //If only one or no player lives
             
             if(player == numberOfPlayers){
+                //If its the last players turn aka if the last round is completed
                 
                 int winner = 0;
                 
@@ -91,120 +107,194 @@ public class Phases {
                     }
                 }
             
-                if(winner > 0){ //If the last player alive can move next round, that player wins
+                if(winner > 0){ 
+                    //If the game got no winner it becomes a tie
                     
                     endPhase(gameboard, sideLength, winner, numberOfPlayers, false);
                 }
             
-                else{ //If the last player alive can't move next round, the game becomes a tie
-
+                else{ 
+                    //If the game got a winner that player wins
+                    
                     endPhase(gameboard, sideLength, winner, numberOfPlayers, true);
                 }
             }
             
             else{
-                
+                //If the last round is not completed the turn moves on to the next player
+
                 turnCounter++;
                 
-                gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, roundCounter, turnCounter, takenPositions, activePositions);
+                gamePhase(gameboard, sideLength, numberOfPlayers, deadOrAlive, turnCounter, roundCounter, weapons, positions, players, activePositions, bombs);
             }
         }
         
-        else if(playerStatus == false){ //If player is dead, skip to next person
+        else if(deadOrAlive[player - 1] == false){ 
+            //If player is dead, skip to next person
             
-            if(player == numberOfPlayers){ //If it is the last players turn
+            if(player == numberOfPlayers){ 
+                //If it is the last players turn
                 
                 roundCounter++;
             }
             
             turnCounter++;
             
-            gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, roundCounter, turnCounter, takenPositions, activePositions); //Repeats game phase process
+            bombs = Positions.bombTimer(gameboard, positions, numberOfPlayers, bombs, sideLength, activePositions);
+            
+            gamePhase(gameboard, sideLength, numberOfPlayers, deadOrAlive, turnCounter, roundCounter, weapons, positions, players, activePositions, bombs);
         }
         
         else{
+            //If several players are alive
             
+            Drawing.drawWeaponCounter(gameboard, sideLength, numberOfPlayers, weapons);
             Drawing.drawRoundNumber(gameboard, sideLength, roundCounter);
-            Drawing.drawTurnCircle(gameboard, player, sideLength);
-        
-            int nextCoordinates[] = InformationGathering.getCoordinates(gameboard, sideLength); //Next move
-        
-            int nextPositionX = nextCoordinates[0]; //Next move X
-            int nextPositionY = nextCoordinates[1]; //Next move Y
-        
-            int legality = Positions.legalityOfMove(takenPositions, sideLength, activePositions[player * 2 - 2], activePositions[player * 2 - 1], nextPositionX, nextPositionY);
-        
-            if(legality == 0){ //Players move is legal
+            Drawing.drawTurnSquareAndNumber(gameboard, sideLength, player);
+            
+            for(int i = 0 ; i < numberOfPlayers ; i++){
+                
+                if(deadOrAlive[i] == false){
                     
-                Drawing.drawNewSquares(gameboard, player, nextPositionX, nextPositionY); //Draw new circles, needs restriction
-                Drawing.drawOldSquares(gameboard, player, activePositions[player * 2 - 2], activePositions[player * 2 - 1]); //Redraws old circle with darker colour
-       
-                takenPositions = Positions.nextPosition(takenPositions, sideLength, nextPositionX, nextPositionY); //Temporary
-       
-                if((turnCounter + numberOfPlayers - 1) % numberOfPlayers + 1 == numberOfPlayers){ //If it is the last players turn
-                        
-                    roundCounter++;
+                    Drawing.drawOverDeadPlayer(gameboard, i + 1, sideLength);
+                    //Draw over the dead players name and weapons to show that they are dead
                 }
-        
-                turnCounter++;
-        
+            }
+            
+            int coordinates[] = InformationGathering.getCoordinates(gameboard, sideLength, player, weapons); //Need player counter
+           
+            int nextPositionX = coordinates[0];
+            int nextPositionY = coordinates[1];
+            int weapon = coordinates[2];
+            int activePositionX = activePositions[player * 2 - 2];
+            int activePositionY = activePositions[player * 2 - 1];
+            
+            boolean legalityOfMove = Positions.legalityOfMove(positions, sideLength, numberOfPlayers, players, activePositions, activePositionX, activePositionY, nextPositionX, nextPositionY, weapon, bombs);
+            
+            if(legalityOfMove == true){
+                //If the players move is legal, it gets executed
+                
+                Drawing.drawNewSquares(gameboard, player, nextPositionX, nextPositionY);
+                Drawing.drawOldSquares(gameboard, player, activePositionX, activePositionY);
+            
                 activePositions[player * 2 - 2] = nextPositionX;
                 activePositions[player * 2 - 1] = nextPositionY;
-        
-                gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, roundCounter, turnCounter, takenPositions, activePositions); //Repeats game phase process
-            }
-        
-            else if(legality == 1){ //Player can move but does so outside of boundaries
+            
+                positions = Positions.nextPosition(positions, sideLength, nextPositionX, nextPositionY);
+                
+                if((turnCounter + numberOfPlayers - 1) % numberOfPlayers + 1 == numberOfPlayers){ 
+                    //If it is the last players turn the round counter goes up
                     
-                gamePhase(gameboard, numberOfPlayers, players, deadOrAlive, sideLength, roundCounter, turnCounter, takenPositions, activePositions); //Repeats game phase process
+                    roundCounter++;
+                }
+                    
+                if(weapon == 0){
+                    //If the player does not use any weapons
+                        
+                    turnCounter++;
+                    //Turn goes to the next player
+                }
+                    
+                if(weapon == 1){
+                    //If the player uses the bomb weapon
+                    
+                    //Write more code, not finished
+                    
+                    Drawing.drawBomb(gameboard, activePositionX, activePositionY);
+                    
+                    bombs = Positions.plantBomb(gameboard, numberOfPlayers, bombs, activePositionX, activePositionY);
+                    
+                    weapons[player - 1][0]--;
+                    //Decreases the amount of this weapon in the players arsenal by one
+                        
+                    turnCounter++;
+                    //Turn goes to the next player
+                }
+                    
+                else if(weapon == 2){
+                    //If the player uses the laser weapon
+                        
+                    Drawing.eraseSquaresLaser(gameboard, sideLength, numberOfPlayers, activePositionX, activePositionY, nextPositionX, nextPositionY, activePositions);
+                        
+                    positions = Positions.erasePositionLaser(positions, sideLength, numberOfPlayers, activePositionX, activePositionY, nextPositionX, nextPositionY, activePositions);
+                        
+                    weapons[player - 1][1]--;
+                    //Decreases the amount of this weapon in the players arsenal by one
+                        
+                    turnCounter++;
+                    //Turn goes to the next player
+                }
+                    
+                else if(weapon == 3){
+                    //If the player uses the dash weapon
+                        
+                    weapons[player - 1][2]--;
+                    //Decreases the amount of this weapon in the players arsenal by one
+                }
+                    
+                else if(weapon == 4){
+                    //If the player uses the phase weapon
+                        
+                    weapons[player - 1][3]--;
+                    //Decreases the amount of this weapon in the players arsenal by one
+                        
+                    turnCounter++;
+                    //Turn goes to the next player
+                }
+                
+                bombs = Positions.bombTimer(gameboard, positions, numberOfPlayers, bombs, sideLength, activePositions);
+                    
+                gamePhase(gameboard, sideLength, numberOfPlayers, deadOrAlive, turnCounter, roundCounter, weapons, positions, players, activePositions, bombs);
+            }
+                
+            else{
+                //The players move is illegal and they get to try again
+                
+                gamePhase(gameboard, sideLength, numberOfPlayers, deadOrAlive, turnCounter, roundCounter, weapons, positions, players, activePositions, bombs);
             }
         }
-    }
+    }//Not finished
     
     
     
-    public static void endPhase(SimpleWindow gameboard, int sideLength, int player, int numberOfPlayers, boolean tie){
+    public static void endPhase(SimpleWindow gameboard, int sideLength, int winningPlayer, int numberOfPlayers, boolean tie){
         
         gameboard.setLineColor(Color.black);
         
-        if(tie == true){ //If game ends in a tie
+        if(tie == true){ 
+            //If game ends in a tie
             
-            gameboard.moveTo(sideLength * 50 + 10, 250);
-            gameboard.writeText("Game ended");
-            
-            gameboard.moveTo(sideLength * 50 + 10, 262);
-            gameboard.writeText("in a tie.");
+            gameboard.moveTo(sideLength * 50 + 50, 250);
+            gameboard.writeText("Game ended in a tie.");
         }
         
-        else{ //If game doesn't end in a tie
-        
+        else{ 
+            //If game doesn't end in a tie
+            
             String colour;
         
-            if(player == 1){ //If winning player is 1
+            if(winningPlayer == 1){
             
                 colour = "(Red)";
             }
         
-            else if(player == 2){ //If winning player is 2
+            else if(winningPlayer == 2){
             
                 colour = "(Blue)";
             }
         
-            else if(player == 3){ //If winning player is 3
+            else if(winningPlayer == 3){
             
                 colour = "(Green)";
             }
         
-            else{ //If winning player is 4
+            else{
             
                 colour = "(Yellow)";
             }
             
-            gameboard.moveTo(sideLength * 50 + 10, 250);
-            gameboard.writeText("Player " + player);
-            
-            gameboard.moveTo(sideLength * 50 + 10, 262);
-            gameboard.writeText(colour + " won.");
+            gameboard.moveTo(sideLength * 50 + 50, 250);
+            gameboard.writeText("Player " + winningPlayer + " " + colour + " won.");
         }
     }
 }
